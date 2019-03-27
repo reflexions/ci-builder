@@ -50,7 +50,6 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		docker-ce \
 		google-cloud-sdk \
-		java-1.8.0-openjdk.x86_64 \
 		kubectl \
 		nodejs \
 		yarn \
