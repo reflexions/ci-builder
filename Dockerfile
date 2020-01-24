@@ -1,5 +1,4 @@
-# not using centos7 because its curl doesn't support --data-raw
-FROM fedora:29
+FROM centos:8
 
 ENV LANG en_US.utf8
 
@@ -18,24 +17,24 @@ gpgkey=https://dl.yarnpkg.com/rpm/pubkey.gpg\n\
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64\n\
 enabled=1\n\
 gpgcheck=1\n\
-repo_gpgcheck=1\n\
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg\n\
-	https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
 
 # the only enabled repo in https://download.docker.com/linux/fedora/docker-ce.repo
 # centos version: https://download.docker.com/linux/centos/docker-ce.repo
 # have to escape the $ before basearch and releasever with \
+# 7 is correct here -- there's no 8 version yet
+# using --nobest only because we have to..
 RUN printf "\
 [docker-ce-stable]\n\
 name=Docker CE Stable - \$basearch\n\
-baseurl=https://download.docker.com/linux/fedora/\$releasever/\$basearch/stable\n\
+baseurl=https://download.docker.com/linux/centos/7/\$basearch/stable\n\
 enabled=1\n\
 gpgcheck=1\n\
-gpgkey=https://download.docker.com/linux/fedora/gpg\n\
+gpgkey=https://download.docker.com/linux/centos/gpg\n\
 " > /etc/yum.repos.d/docker-ce.repo
 
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
@@ -46,9 +45,11 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_10.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_13.x | bash - \
 	&& dnf -y install \
+		--nobest \
 		docker-ce \
+	&& dnf -y install \
 		google-cloud-sdk \
 		kubectl \
 		nodejs \
