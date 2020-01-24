@@ -3,16 +3,6 @@ FROM centos:8
 ENV LANG en_US.utf8
 
 # putting && on next line, because then it's more obvious that
-# the new line is a separate command
-
-RUN printf "\
-[yarn]\n\
-name=Yarn Repository\n\
-baseurl=https://dl.yarnpkg.com/rpm/\n\
-enabled=1\n\
-gpgcheck=1\n\
-gpgkey=https://dl.yarnpkg.com/rpm/pubkey.gpg\n\
-" > /etc/yum.repos.d/yarn.repo
 
 RUN printf "\
 [google-cloud-sdk]\n\
@@ -53,6 +43,5 @@ RUN touch /var/lib/rpm/* \
 		google-cloud-sdk \
 		kubectl \
 		nodejs \
-		yarn \
 	&& gcloud auth configure-docker \
 	&& dnf clean all
