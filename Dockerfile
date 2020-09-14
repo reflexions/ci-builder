@@ -29,13 +29,13 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
-# setup_10.x installs the nodejs repo but not node itself
+# setup_14.x installs the nodejs repo but not node itself
 # gcloud needs `which` during install and runtime
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_13.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_14.x | bash - \
 	&& dnf -y install \
 		--nobest \
 		docker-ce \
