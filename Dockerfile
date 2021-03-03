@@ -1,4 +1,4 @@
-FROM centos:8
+FROM quay.io/centos/centos:stream8 as base
 
 ENV LANG en_US.utf8
 
@@ -13,15 +13,13 @@ gpgcheck=1\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
 
-# the only enabled repo in https://download.docker.com/linux/fedora/docker-ce.repo
-# centos version: https://download.docker.com/linux/centos/docker-ce.repo
+# the only enabled repo in https://download.docker.com/linux/centos/docker-ce.repo
+# there's also a fedora version at https://download.docker.com/linux/fedora/docker-ce.repo
 # have to escape the $ before basearch and releasever with \
-# 7 is correct here -- there's no 8 version yet
-# using --nobest only because we have to..
 RUN printf "\
 [docker-ce-stable]\n\
 name=Docker CE Stable - \$basearch\n\
-baseurl=https://download.docker.com/linux/centos/7/\$basearch/stable\n\
+baseurl=https://download.docker.com/linux/centos/\$releasever/\$basearch/stable\n\
 enabled=1\n\
 gpgcheck=1\n\
 gpgkey=https://download.docker.com/linux/centos/gpg\n\
@@ -37,9 +35,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_14.x | bash - \
-	&& dnf -y install --nobest docker-ce \
-	&& dnf -y module disable container-tools \
+	&& curl --silent --location https://rpm.nodesource.com/setup_15.x | bash - \
 	&& dnf -y install \
 		docker-ce \
 		google-cloud-sdk \

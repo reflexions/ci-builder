@@ -7,5 +7,5 @@ set -x #echo on
 
 image=gcr.io/reflexions-ci-builder/github.com/reflexions/ci-builder:master
 
-docker build --no-cache --pull -t $image . \
-	&& docker push $image
+docker build --no-cache --pull -t $image . || exit 1
+docker push $image
