@@ -35,7 +35,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_15.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_16.x | bash - \
 	&& dnf -y install \
 		docker-ce \
 		google-cloud-sdk \
