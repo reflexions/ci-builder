@@ -27,9 +27,8 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
-# setup_14.x installs the nodejs repo but not node itself
+# setup_16.x installs the nodejs repo but not node itself
 # gcloud needs `which` during install and runtime
-# the --nobest install of docker-ce is a workaround to get the deps installed, then we reinstall the latest
 # disable redhat's container-tools and use docker-ce instead
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
