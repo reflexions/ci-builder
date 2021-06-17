@@ -30,6 +30,7 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # setup_16.x installs the nodejs repo but not node itself
 # gcloud needs `which` during install and runtime
 # disable redhat's container-tools and use docker-ce instead
+# docker-compose isn't available in a centos repo :/
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
@@ -40,5 +41,13 @@ RUN touch /var/lib/rpm/* \
 		google-cloud-sdk \
 		kubectl \
 		nodejs \
+	&& curl -s https://api.github.com/repos/docker/compose/releases/latest \
+		| grep browser_download_url \
+		| grep docker-compose-Linux-x86_64 \
+		| cut -d '"' -f 4 \
+		| xargs -n 1 curl -OL \
+	&& sha256sum -c docker-compose-Linux-x86_64.sha256 \
+	&& mv ./docker-compose-Linux-x86_64 /usr/local/bin/docker-compose \
+	&& chmod +x /usr/local/bin/docker-compose \
 	&& gcloud auth configure-docker \
 	&& dnf clean all
