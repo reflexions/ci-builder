@@ -43,11 +43,11 @@ RUN touch /var/lib/rpm/* \
 		nodejs \
 	&& curl -s https://api.github.com/repos/docker/compose/releases/latest \
 		| grep browser_download_url \
-		| grep docker-compose-Linux-x86_64 \
+		| grep docker-compose-linux-x86_64 \
 		| cut -d '"' -f 4 \
 		| xargs -n 1 curl -OL \
-	&& sha256sum -c docker-compose-Linux-x86_64.sha256 \
-	&& mv ./docker-compose-Linux-x86_64 /usr/local/bin/docker-compose \
+	&& sha256sum -c docker-compose-linux-x86_64.sha256 \
+	&& mv ./docker-compose-linux-x86_64 /usr/local/bin/docker-compose \
 	&& chmod +x /usr/local/bin/docker-compose \
 	&& gcloud auth configure-docker \
 	&& dnf clean all
