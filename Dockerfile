@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8 as base
+FROM quay.io/centos/centos:stream9 as base
 
 ENV LANG en_US.utf8
 
@@ -31,11 +31,12 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # gcloud needs `which` during install and runtime
 # disable redhat's container-tools and use docker-ce instead
 # docker-compose isn't available in a centos repo :/
+# do we actually need google-cloud-sdk here? it's giant.. We do use gsutil though
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_16.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_18.x | bash - \
 	&& dnf -y install \
 		docker-ce \
 		google-cloud-sdk \
