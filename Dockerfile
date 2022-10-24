@@ -27,11 +27,13 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
-# setup_16.x installs the nodejs repo but not node itself
+# setup_18.x installs the nodejs repo but not node itself
 # gcloud needs `which` during install and runtime
 # disable redhat's container-tools and use docker-ce instead
-# docker-compose isn't available in a centos repo :/
+# no longer installing the separate docker-compose binary (prefer the `docker compose` plugin instead,
+# which is available from the docker:latest image)
 # do we actually need google-cloud-sdk here? it's giant.. We do use gsutil though
+# trace-unhandled helps with debugging ERR_UNHANDLED_REJECTION
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
@@ -39,16 +41,10 @@ RUN touch /var/lib/rpm/* \
 	&& curl --silent --location https://rpm.nodesource.com/setup_18.x | bash - \
 	&& dnf -y install \
 		docker-ce \
+		docker-compose-plugin \
 		google-cloud-sdk \
 		kubectl \
 		nodejs \
-	&& curl -s https://api.github.com/repos/docker/compose/releases/latest \
-		| grep browser_download_url \
-		| grep docker-compose-linux-x86_64 \
-		| cut -d '"' -f 4 \
-		| xargs -n 1 curl -OL \
-	&& sha256sum -c docker-compose-linux-x86_64.sha256 \
-	&& mv ./docker-compose-linux-x86_64 /usr/local/bin/docker-compose \
-	&& chmod +x /usr/local/bin/docker-compose \
 	&& gcloud auth configure-docker \
+	&& npm install -g trace-unhandled \
 	&& dnf clean all
