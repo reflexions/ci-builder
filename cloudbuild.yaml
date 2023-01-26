@@ -21,8 +21,8 @@ steps:
       'buildx', 'build',
       '--push',
       #'--platform', 'linux/amd64',
-      '--platform', 'linux/arm64',
-      #'--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
+      #'--platform', 'linux/arm64',
+      '--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
       '-t', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
       '.'
     ]
