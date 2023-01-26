@@ -7,7 +7,7 @@ ENV LANG en_US.utf8
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-$basearch\n\
 enabled=1\n\
 gpgcheck=1\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
