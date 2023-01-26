@@ -39,12 +39,10 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		which \
 	&& curl --silent --location https://rpm.nodesource.com/setup_18.x | bash - \
-	&& dnf list kubectl \
 	&& dnf -y install \
 		docker-ce \
 		docker-compose-plugin \
 		google-cloud-sdk \
-		kubectl \
 		nodejs \
 	&& gcloud auth configure-docker \
 	&& npm install -g trace-unhandled \
