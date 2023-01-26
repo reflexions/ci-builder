@@ -18,12 +18,13 @@ steps:
     id: 'show-target-build-platforms'
   - name: 'gcr.io/cloud-builders/docker'
     args: [
-        'buildx', 'build',
-        '--push',
-        #'--platform', 'linux/amd64',
-        '--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
-        '-t', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
-        '.'
+      'buildx', 'build',
+      '--push',
+      #'--platform', 'linux/amd64',
+      '--platform', 'linux/arm64',
+      #'--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
+      '-t', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
+      '.'
     ]
 options:
   env:
