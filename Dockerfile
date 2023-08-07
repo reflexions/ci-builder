@@ -7,7 +7,7 @@ ENV LANG en_US.utf8
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-\$basearch\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
 enabled=1\n\
 gpgcheck=1\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
@@ -38,12 +38,13 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false \
 	&& dnf -y install \
 		which \
-	&& curl --silent --location https://rpm.nodesource.com/setup_18.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_20.x | bash - \
 	&& dnf -y install \
 		docker-ce \
 		docker-compose-plugin \
 		google-cloud-sdk \
 		nodejs \
 	&& gcloud auth configure-docker \
+	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g trace-unhandled \
 	&& dnf clean all

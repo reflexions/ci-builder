@@ -7,7 +7,17 @@ set -x #echo on
 image1=gcr.io/reflexions-ci-builder/github.com/reflexions/ci-builder:master
 # prefer main (it's what CI builds)
 image2=gcr.io/reflexions-ci-builder/github.com/reflexions/ci-builder:main
+# artifact registry
+image3=us-central1-docker.pkg.dev/reflexions-ci-builder/ci-builder/ci-builder:main
 
-docker build --no-cache --pull -t $image1 -t $image2 . || exit 1
+no_cache=--no-cache
+no_cache=
+
+docker build $no_cache --pull \
+	-t $image1 \
+	-t $image2 \
+	-t $image3 \
+	. || exit 1
 docker push $image1 || exit 1
 docker push $image2 || exit 1
+docker push $image3 || exit 1
