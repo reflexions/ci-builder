@@ -10,8 +10,7 @@ image2=gcr.io/reflexions-ci-builder/github.com/reflexions/ci-builder:main
 # artifact registry
 image3=us-central1-docker.pkg.dev/reflexions-ci-builder/ci-builder/ci-builder:main
 
-no_cache=--no-cache
-no_cache=
+no_cache=${NO_CACHE---no-cache}
 
 docker build $no_cache --pull \
 	-t $image1 \
