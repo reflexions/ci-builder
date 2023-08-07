@@ -42,7 +42,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		docker-ce \
 		docker-compose-plugin \
-		google-cloud-sdk \
+		google-cloud-cli \
 		nodejs \
 	&& gcloud auth configure-docker \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \

@@ -23,7 +23,11 @@ steps:
       #'--platform', 'linux/amd64',
       #'--platform', 'linux/arm64',
       '--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
-      '-t', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
+      '--tag', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
+
+      # TODO: push to artifact registry. The docker-laravel-fedora project uses a
+      # special Dockerfile-gcloud-docker helper for that which we should share
+
       '.'
     ]
 options:
