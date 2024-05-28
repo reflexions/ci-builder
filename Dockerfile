@@ -54,8 +54,6 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # git is installed to silence warning: with buildx: git was not found in the system. Current commit information was not captured by the build
 #
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
-#
-# zx is google's shell scripting helpers for nodejs. We're not using it yet.
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
 	&& curl --silent --location https://rpm.nodesource.com/setup_22.x | bash - \
@@ -68,7 +66,7 @@ RUN touch /var/lib/rpm/* \
 	&& gcloud auth configure-docker \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
+		google-artifactregistry-auth \
 		trace-unhandled \
-		zx \
 	&& rm -f /usr/lib64/google-cloud-sdk/RELEASE_NOTES \
 	&& dnf clean all
