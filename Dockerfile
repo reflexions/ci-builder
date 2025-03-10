@@ -72,6 +72,7 @@ RUN touch /var/lib/rpm/* \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
 		google-artifactregistry-auth \
+		source-map-support \
 	&& rm -f /usr/lib64/google-cloud-sdk/RELEASE_NOTES \
 	&& dnf clean all
 
