@@ -53,8 +53,10 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 #	&& curl "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${latest_gcloud_version}-linux-$(uname -m).tar.gz" -o google-cloud-cli.tar.gz \
 #	&& tar zxf google-cloud-cli.tar.gz \
 #
-# no longer includ trace-unhandled, as it hasn't had a release in years, and node now has --trace-uncaught
+# no longer include trace-unhandled, as it hasn't had a release in years, and node now has --trace-uncaught
 # we used to use trace-unhandled to help with debugging ERR_UNHANDLED_REJECTION
+#
+# don't need source-map-support because the scripts we run aren't compiled
 #
 # git is installed to silence warning: with buildx: git was not found in the system. Current commit information was not captured by the build
 #
@@ -72,7 +74,6 @@ RUN touch /var/lib/rpm/* \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
 		google-artifactregistry-auth \
-		source-map-support \
 	&& rm -f /usr/lib64/google-cloud-sdk/RELEASE_NOTES \
 	&& dnf clean all
 
