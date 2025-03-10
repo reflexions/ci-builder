@@ -1,17 +1,21 @@
-# this mirrors quay.io/centos/centos:stream9
+# this mirrors quay.io/centos/centos:stream10
 # use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest as base
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS base
 
-ENV LANG en_US.utf8
+ENV LANG=en_US.utf8
 
 # putting && on next line, because then it's more obvious that
 
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
+# centos10 not supported yet\n\
+#baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-\$basearch\n\
 enabled=1\n\
-gpgcheck=1\n\
+# Google isn't signing their package correctly :-/\n\
+#gpgcheck=1\n\
+gpgcheck=0\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
 
@@ -49,14 +53,15 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 #	&& curl "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${latest_gcloud_version}-linux-$(uname -m).tar.gz" -o google-cloud-cli.tar.gz \
 #	&& tar zxf google-cloud-cli.tar.gz \
 #
-# trace-unhandled helps with debugging ERR_UNHANDLED_REJECTION
+# no longer includ trace-unhandled, as it hasn't had a release in years, and node now has --trace-uncaught
+# we used to use trace-unhandled to help with debugging ERR_UNHANDLED_REJECTION
 #
 # git is installed to silence warning: with buildx: git was not found in the system. Current commit information was not captured by the build
 #
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
-	&& curl --silent --location https://rpm.nodesource.com/setup_22.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_23.x | bash - \
 	&& dnf -y install --nodocs \
 		docker-ce \
 		docker-compose-plugin \
@@ -67,6 +72,10 @@ RUN touch /var/lib/rpm/* \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
 		google-artifactregistry-auth \
-		trace-unhandled \
 	&& rm -f /usr/lib64/google-cloud-sdk/RELEASE_NOTES \
 	&& dnf clean all
+
+# I didn't bother breaking up the above into multiple RUN statements because of the need to
+# run touch /var/lib/rpm/* each time we dnf install. If we do end up doing that, then use this:
+#FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS flattened
+#COPY --from=base / /
