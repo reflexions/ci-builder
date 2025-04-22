@@ -6,7 +6,7 @@
 steps:
   - id: 'initialize-qemu'
     name: 'gcr.io/cloud-builders/docker'
-    args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
+    args: [ 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
 
   - id: 'create-builder'
     name: 'gcr.io/cloud-builders/docker'
