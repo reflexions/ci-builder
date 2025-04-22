@@ -4,29 +4,31 @@
 
 
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
+  - id: 'initialize-qemu'
+    name: 'gcr.io/cloud-builders/docker'
     args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
-    id: 'initialize-qemu'
-  - name: 'gcr.io/cloud-builders/docker'
+
+  - id: 'create-builder'
+    name: 'gcr.io/cloud-builders/docker'
     args: [ 'buildx', 'create', '--name', 'mybuilder' ]
-    id: 'create-builder'
-  - name: 'gcr.io/cloud-builders/docker'
+
+  - id: 'select-builder'
+    name: 'gcr.io/cloud-builders/docker'
     args: [ 'buildx', 'use', 'mybuilder' ]
-    id: 'select-builder'
-  - name: 'gcr.io/cloud-builders/docker'
+
+  - id: 'show-target-build-platforms'
+    name: 'gcr.io/cloud-builders/docker'
     args: [ 'buildx', 'inspect', '--bootstrap' ]
-    id: 'show-target-build-platforms'
+
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'buildx', 'build',
+      '--progress', 'plain',
       '--push',
       #'--platform', 'linux/amd64',
       #'--platform', 'linux/arm64',
-      '--platform', 'linux/amd64,linux/amd64/v2,linux/arm64',
-      '--tag', 'gcr.io/$PROJECT_ID/github.com/reflexions/$REPO_NAME:$BRANCH_NAME',
-
-      # TODO: push to artifact registry. The docker-laravel-fedora project uses a
-      # special Dockerfile-gcloud-docker helper for that which we should share
+      '--platform', 'linux/amd64,linux/arm64',
+      '--tag', 'us-central1-docker.pkg.dev/reflexions-ci-builder/$REPO_NAME/ci-builder:$BRANCH_NAME',
 
       '.'
     ]
@@ -36,5 +38,9 @@ options:
 
   # https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.builds#machinetype
   # unspecified, N1_HIGHCPU_8, N1_HIGHCPU_32, E2_HIGHCPU_8, E2_HIGHCPU_32
-  machineType: 'E2_HIGHCPU_32'
+  #machineType: 'E2_HIGHCPU_8'
+
+  pool:
+    name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-4'
+
 timeout: 2400s
