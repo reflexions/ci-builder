@@ -17,24 +17,24 @@ steps:
     args: [ 'gcloud', '--quiet', 'auth', 'configure-docker', 'us-central1-docker.pkg.dev' ]
 
   - id: 'initialize-qemu'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
+    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
 
   - id: 'create-builder'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'create', '--name', 'mybuilder' ]
+    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'use', 'mybuilder' ]
+    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'inspect', '--bootstrap' ]
+    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
     args: [
-      'buildx', 'build',
+      'docker', 'buildx', 'build',
       '--progress', 'plain',
       '--push',
       #'--platform', 'linux/amd64',
