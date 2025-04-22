@@ -56,7 +56,8 @@ options:
     # e2-highmem-4 times out after 40 min, but gets close
     #name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-4'
 
-    # e2-highmem-8 takes just over 30 min
+    # e2-highmem-8 takes just over 40 min
     name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-8'
 
-timeout: 2400s
+# 4500s = 75 min
+timeout: 4500s
