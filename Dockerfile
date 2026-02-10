@@ -1,22 +1,18 @@
-# this mirrors quay.io/centos/centos:stream10
-# use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS base
+FROM us-central1-docker.pkg.dev/reflexions-ci-builder/centos-mirror/centos/centos:stream10 AS base
 
 ENV LANG=en_US.utf8
 
 # putting && on next line, because then it's more obvious that
 
+# https://docs.cloud.google.com/sdk/docs/install-sdk#rpm
 RUN printf "\
-[google-cloud-sdk]\n\
-name=Google Cloud SDK\n\
-# centos10 not supported yet\n\
-#baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-\$basearch\n\
+[google-cloud-cli]\n\
+name=Google Cloud CLI\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
 enabled=1\n\
-# Google isn't signing their package correctly :-/\n\
-#gpgcheck=1\n\
-gpgcheck=0\n\
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
+gpgcheck=1\n\
+repo_gpgcheck=0\n\
+gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key-v10.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
 
 # the only enabled repo in https://download.docker.com/linux/centos/docker-ce.repo
@@ -61,13 +57,15 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # git is installed to silence warning: with buildx: git was not found in the system. Current commit information was not captured by the build
 #
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
+# libxcrypt-compat recommended by the gcloud repo docs
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
 	&& curl --silent --location https://rpm.nodesource.com/setup_24.x | bash - \
 	&& dnf -y install --nodocs \
-		docker-ce \
+		docker-ce-cli \
 		docker-compose-plugin \
 		git \
+		libxcrypt-compat \
 		google-cloud-cli \
 		nodejs \
 	&& gcloud auth configure-docker \
