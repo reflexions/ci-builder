@@ -58,11 +58,12 @@ steps:
           push=--push
         fi
 
+        # note: REPO_NAME is "github_reflexions_ci-builder" in CI
         exec docker buildx build \
           --progress plain \
           $push \
           --platform linux/amd64,linux/arm64 \
-          --tag "us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/ci-builder:$BRANCH_NAME" \
+          --tag "us-central1-docker.pkg.dev/${PROJECT_ID}/ci-builder/ci-builder:$BRANCH_NAME" \
           .
 
 logsBucket: 'gs://reflexions-ci-builder-build-logs-us-central1/$REPO_NAME/$BUILD_ID'
