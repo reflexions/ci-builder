@@ -4,10 +4,6 @@
 
 
 steps:
-  - id: 'docker from registry version'
-    name: 'docker'
-    args: [ '--version' ]
-
   - id: 'built docker version'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
     args: [ 'docker', '--version' ]
@@ -17,35 +13,59 @@ steps:
     args: [ 'gcloud', '--quiet', 'auth', 'configure-docker', 'us-central1-docker.pkg.dev' ]
 
   - id: 'initialize-qemu'
+    # the gcr.io/cloud-builders/docker version is ancient, so use our docker image
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
 
   - id: 'create-builder'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
   - id: 'build-and-push'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      # https://cloud.google.com/cloud-build/docs/configuring-builds/substitute-variable-values
+      - 'PROJECT_ID=$PROJECT_ID'
+      - 'BUILD_ID=$BUILD_ID'
+      - 'REPO_NAME=$REPO_NAME'
+      - 'BRANCH_NAME=$BRANCH_NAME'
+      - 'COMMIT_SHA=$COMMIT_SHA'
+      - 'REVISION_ID=$REVISION_ID'
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     entrypoint: bash
     args:
       - -c
       - |
+
+        push=
+        if [ "$BRANCH_NAME" == "main" ]; then
+          push=--push
+        fi
+
         exec docker buildx build \
           --progress plain \
-          --push \
+          $push \
           --platform linux/amd64,linux/arm64 \
-          --tag us-central1-docker.pkg.dev/reflexions-ci-builder/$REPO_NAME/ci-builder:$BRANCH_NAME \
+          --tag "us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/ci-builder:$BRANCH_NAME" \
           .
 
-logsBucket: 'gs://build-logs-with-autodelete-us-central1/$REPO_NAME/$BUILD_ID'
+logsBucket: 'gs://reflexions-ci-builder-build-logs-us-central1/$REPO_NAME/$BUILD_ID'
 
 options:
   logging: GCS_ONLY
