@@ -32,19 +32,25 @@ steps:
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
     args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
-  - name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
-    args: [
-      'docker', 'buildx', 'build',
-      '--progress', 'plain',
-      '--push',
-      #'--platform', 'linux/amd64',
-      #'--platform', 'linux/arm64',
-      '--platform', 'linux/amd64,linux/arm64',
-      '--tag', 'us-central1-docker.pkg.dev/reflexions-ci-builder/$REPO_NAME/ci-builder:$BRANCH_NAME',
-
-      '.'
+  - id: 'build-and-push'
+    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        exec docker buildx build \
+          --progress plain \
+          --push \
+          --platform linux/amd64,linux/arm64 \
+          --tag us-central1-docker.pkg.dev/reflexions-ci-builder/$REPO_NAME/ci-builder:$BRANCH_NAME \
+          .
     ]
+
+logsBucket: 'gs://build-logs-with-autodelete-us-central1/$REPO_NAME/$BUILD_ID'
+
 options:
+  logging: GCS_ONLY
+
   env:
     - 'DOCKER_CLI_EXPERIMENTAL=enabled'
 

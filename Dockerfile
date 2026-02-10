@@ -63,7 +63,7 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
-	&& curl --silent --location https://rpm.nodesource.com/setup_23.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_24.x | bash - \
 	&& dnf -y install --nodocs \
 		docker-ce \
 		docker-compose-plugin \
