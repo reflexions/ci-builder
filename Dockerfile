@@ -62,6 +62,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
 	&& curl --silent --location https://rpm.nodesource.com/setup_24.x | bash - \
 	&& dnf -y install --nodocs \
+		docker-buildx-plugin \
 		docker-ce-cli \
 		docker-compose-plugin \
 		git \
