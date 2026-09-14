@@ -1,6 +1,7 @@
 FROM us-central1-docker.pkg.dev/reflexions-ci-builder/centos-mirror/centos/centos:stream10 AS base
 
 ENV LANG=en_US.utf8
+ENV RHEL_VERSION="10"
 
 # putting && on next line, because then it's more obvious that
 
@@ -58,17 +59,25 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 #
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
 # libxcrypt-compat recommended by the gcloud repo docs
+#
+# jq for json manipulation
+# yq for yaml manipulation
+# epel for yq
 RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
+	&& dnf -y install \
+		https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VERSION}.noarch.rpm \
 	&& curl --silent --location https://rpm.nodesource.com/setup_24.x | bash - \
 	&& dnf -y install --nodocs \
 		docker-buildx-plugin \
 		docker-ce-cli \
 		docker-compose-plugin \
 		git \
+		jq \
 		libxcrypt-compat \
 		google-cloud-cli \
 		nodejs \
+		yq \
 	&& gcloud auth configure-docker \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
