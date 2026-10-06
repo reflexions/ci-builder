@@ -104,3 +104,6 @@ ENV CI_TRACE_OTLP_ENDPOINT=""
 ARG CI_TRACE_OTLP_TOKEN=""
 ENV CI_TRACE_OTLP_TOKEN=$CI_TRACE_OTLP_TOKEN
 ENV NODE_OPTIONS="--import=/opt/ci-trace/preload.mjs"
+# reported with every build trace, so build times can be compared across image versions
+ARG CI_BUILDER_VERSION=""
+ENV CI_BUILDER_VERSION=$CI_BUILDER_VERSION

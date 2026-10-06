@@ -27,6 +27,7 @@ exec docker buildx build $no_cache --pull \
 	$push_arg \
 	--platform "${platform}" \
 	--build-arg CI_TRACE_OTLP_TOKEN \
+	--build-arg CI_BUILDER_VERSION="$(git rev-parse HEAD)-local" \
 	-t "$image1" \
 	-t "$image2" \
 	.

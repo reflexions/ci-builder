@@ -129,9 +129,10 @@ export const createBuildTrace = ({
 	 * Closes the root span and exports everything. Safe to call more than
 	 * once; later calls are no-ops. Never throws.
 	 * @param {"success"|"failure"} outcome
-	 * @param {{ bearerToken?: string }} [options]
+	 * @param {{ bearerToken?: string, attributes?: Record<string, string|number|boolean> }} [options]
+	 *        attributes are added to the root span
 	 */
-	const flush = async (outcome, { bearerToken } = {}) => {
+	const flush = async (outcome, { bearerToken, attributes: rootAttributes } = {}) => {
 		if (flushed) {
 			return;
 		}
@@ -144,7 +145,7 @@ export const createBuildTrace = ({
 		}
 		endSpan(rootSpan, {
 			error: outcome === "failure",
-			attributes: { "ci.build.outcome": outcome },
+			attributes: { ...rootAttributes, "ci.build.outcome": outcome },
 		});
 
 		const payload = {
