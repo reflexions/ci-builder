@@ -89,3 +89,13 @@ RUN touch /var/lib/rpm/* \
 # run touch /var/lib/rpm/* each time we dnf install. If we do end up doing that, then use this:
 #FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS flattened
 #COPY --from=base / /
+
+# Build-time tracing (see ci-trace/preload.mjs). Loaded into every node process via NODE_OPTIONS,
+# and runs for every build that uses this image.
+# The tests run here so a broken preload, which would take down every node process in every repo
+# using this image, can never ship.
+COPY ci-trace /opt/ci-trace
+RUN node --test /opt/ci-trace/ci-trace.test.mjs
+# TODO: set to the build collector's url once it exists. Empty = tracing off everywhere.
+ENV CI_TRACE_OTLP_ENDPOINT=""
+ENV NODE_OPTIONS="--import=/opt/ci-trace/preload.mjs"
