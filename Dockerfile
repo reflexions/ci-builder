@@ -98,4 +98,9 @@ COPY ci-trace /opt/ci-trace
 RUN node --test /opt/ci-trace/ci-trace.test.mjs
 # TODO: set to the build collector's url once it exists. Empty = tracing off everywhere.
 ENV CI_TRACE_OTLP_ENDPOINT=""
+# Write-only token for the collector, from Secret Manager via cloudbuild.yaml. Baked in on purpose so
+# builds in client infra (no access to our secrets) can report; anyone who can pull this image can
+# read it. Rotate by updating the secret and rebuilding.
+ARG CI_TRACE_OTLP_TOKEN=""
+ENV CI_TRACE_OTLP_TOKEN=$CI_TRACE_OTLP_TOKEN
 ENV NODE_OPTIONS="--import=/opt/ci-trace/preload.mjs"

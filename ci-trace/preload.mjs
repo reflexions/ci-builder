@@ -12,8 +12,9 @@
  * Env:
  *   CI_TRACE_OTLP_ENDPOINT        collector base url. Set in the Dockerfile for
  *                                 everyone; empty = off everywhere.
- *   CI_TRACE_OTLP_TOKEN           bearer token. If unset, read from Secret Manager:
- *   CI_TRACE_OTLP_TOKEN_SECRET    secret name, default otel-ingress-bearer-token
+ *   CI_TRACE_OTLP_TOKEN           bearer token, baked into the image at build time so
+ *                                 builds in client infra can report too. It can only
+ *                                 write traces; rotate it by rebuilding the image.
  *   CI_TRACE_SERVICE_NAME         default REPO_NAME
  *   CI_TRACE_EXPORT_TIMEOUT_MS    default 10000
  * Root span attributes come from the usual Cloud Build env: BUILD_ID,
@@ -29,7 +30,6 @@
 import childProcess from "node:child_process";
 import { syncBuiltinESMExports } from "node:module";
 import { basename } from "node:path";
-import { promisify } from "node:util";
 import { createBuildTrace } from "./BuildTrace.mjs";
 
 const env = process.env;
@@ -89,22 +89,6 @@ export const describeCommand = (command, args) => {
 	return null;
 };
 
-const readTokenFromSecretManager = async () => {
-	const secret = env.CI_TRACE_OTLP_TOKEN_SECRET || "otel-ingress-bearer-token";
-	try {
-		const { stdout } = await promisify(childProcess.execFile)(
-			"gcloud",
-			[ "secrets", "versions", "access", "latest", `--secret=${secret}` ],
-			{ timeout: 15000 },
-		);
-		return stdout.trim();
-	}
-	catch (error) {
-		console.warn(`ci-trace: couldn't read secret ${secret}; exporting without a token`, error.message);
-		return undefined;
-	}
-};
-
 const start = () => {
 	// children (e.g. a node script the builder spawns) inherit NODE_OPTIONS;
 	// they're part of this build's trace already, so they stay inert
@@ -158,8 +142,7 @@ const start = () => {
 			return;
 		}
 		exporting = true;
-		const bearerToken = env.CI_TRACE_OTLP_TOKEN || await readTokenFromSecretManager();
-		await trace.flush(process.exitCode ? "failure" : "success", { bearerToken });
+		await trace.flush(process.exitCode ? "failure" : "success", { bearerToken: env.CI_TRACE_OTLP_TOKEN });
 	});
 };
 

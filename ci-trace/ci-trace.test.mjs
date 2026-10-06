@@ -29,7 +29,7 @@ const startCollector = async () => {
 	return { requests, server, url: `http://127.0.0.1:${server.address().port}` };
 };
 
-/** A temp dir with fake docker/gsutil/gcloud, and a "builder" script that uses them. */
+/** A temp dir with fake docker/gsutil, and a "builder" script that uses them. */
 const fakeBuild = () => {
 	const dir = mkdtempSync(join(tmpdir(), "ci-trace-"));
 	const bin = (name, script) => {
@@ -39,7 +39,6 @@ const fakeBuild = () => {
 	// `docker push` of anything ending in :broken fails
 	bin("docker", 'case "$*" in *:broken) exit 1;; esac; exit 0');
 	bin("gsutil", "exit 0");
-	bin("gcloud", "echo token-from-secret-manager");
 	writeFileSync(join(dir, "builder.mjs"), `
 		import { spawn } from "node:child_process";
 		const run = (cmd, args) => new Promise((resolve) => spawn(cmd, args).on("exit", resolve));
@@ -74,14 +73,14 @@ const runBuild = (dir, extraEnv) => promisify(execFile)("node", [ join(dir, "bui
 
 test("a build exports one trace with a span per docker/gsutil call", async () => {
 	const collector = await startCollector();
-	const { stdout } = await runBuild(fakeBuild(), { CI_TRACE_OTLP_ENDPOINT: `${collector.url}/otlp/` });
+	const { stdout } = await runBuild(fakeBuild(), { CI_TRACE_OTLP_ENDPOINT: `${collector.url}/otlp/`, CI_TRACE_OTLP_TOKEN: "baked-token" });
 	collector.server.close();
 
 	assert.match(stdout, /ci-trace: exported 5 spans/);
 	assert.equal(collector.requests.length, 1, "child node process must not export its own trace");
 	const { url, auth, body } = collector.requests[0];
 	assert.equal(url, "/otlp/v1/traces");
-	assert.equal(auth, "Bearer token-from-secret-manager");
+	assert.equal(auth, "Bearer baked-token");
 	assert.ok(!body.includes("hunter2"), "raw argv (build args, passwords) must never be exported");
 
 	const payload = JSON.parse(body);
@@ -106,13 +105,6 @@ test("a build exports one trace with a span per docker/gsutil call", async () =>
 	for (const span of spans) {
 		assert.ok(BigInt(span.endTimeUnixNano) >= BigInt(span.startTimeUnixNano));
 	}
-});
-
-test("explicit token wins over Secret Manager", async () => {
-	const collector = await startCollector();
-	await runBuild(fakeBuild(), { CI_TRACE_OTLP_ENDPOINT: collector.url, CI_TRACE_OTLP_TOKEN: "explicit" });
-	collector.server.close();
-	assert.equal(collector.requests[0].auth, "Bearer explicit");
 });
 
 test("inert with no endpoint", async () => {

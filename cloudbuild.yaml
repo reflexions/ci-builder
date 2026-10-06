@@ -48,6 +48,8 @@ steps:
       - 'COMMIT_SHA=$COMMIT_SHA'
       - 'REVISION_ID=$REVISION_ID'
       - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
+    # baked into the image, see the Dockerfile
+    secretEnv: [ 'CI_TRACE_OTLP_TOKEN' ]
     entrypoint: bash
     args:
       - -c
@@ -63,8 +65,14 @@ steps:
           --progress plain \
           $push \
           --platform linux/amd64,linux/arm64 \
+          --build-arg CI_TRACE_OTLP_TOKEN \
           --tag "us-central1-docker.pkg.dev/${PROJECT_ID}/ci-builder/ci-builder:$BRANCH_NAME" \
           .
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/reflexions-cubic/secrets/otel-ingress-bearer-token/versions/latest
+      env: 'CI_TRACE_OTLP_TOKEN'
 
 logsBucket: 'gs://reflexions-ci-builder-build-logs-us-central1/$REPO_NAME/$BUILD_ID'
 

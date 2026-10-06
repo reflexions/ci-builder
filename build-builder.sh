@@ -26,6 +26,7 @@ exec docker buildx build $no_cache --pull \
 	--progress plain \
 	$push_arg \
 	--platform "${platform}" \
+	--build-arg CI_TRACE_OTLP_TOKEN \
 	-t "$image1" \
 	-t "$image2" \
 	.
