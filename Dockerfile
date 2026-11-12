@@ -1,6 +1,7 @@
 FROM us-central1-docker.pkg.dev/reflexions-ci-builder/centos-mirror/centos/centos:stream10 AS base
 
-ENV LANG=en_US.utf8
+# C.UTF-8 is built into glibc-minimal-langpack; en_US.utf8 would need glibc-langpack-en
+ENV LANG=C.UTF-8
 ENV RHEL_VERSION="10"
 
 # putting && on next line, because then it's more obvious that
@@ -67,7 +68,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y upgrade --setopt=deltarpm=false --nodocs \
 	&& dnf -y install \
 		https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VERSION}.noarch.rpm \
-	&& curl --silent --location https://rpm.nodesource.com/setup_24.x | bash - \
+	&& curl --silent --location https://rpm.nodesource.com/setup_26.x | bash - \
 	&& dnf -y install --nodocs \
 		docker-buildx-plugin \
 		docker-ce-cli \
