@@ -61,6 +61,9 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 # google-cloud-sdk/RELEASE_NOTES is 1mb that we don't need
 # libxcrypt-compat recommended by the gcloud repo docs
 #
+# corepack is no longer bundled with node as of node 25, so install it from npm.
+# Consumers (e.g. marta-types build.sh) run `corepack enable` to get pnpm/yarn.
+#
 # jq for json manipulation
 # yq for yaml manipulation
 # epel for yq
@@ -82,6 +85,7 @@ RUN touch /var/lib/rpm/* \
 	&& gcloud auth configure-docker \
 	&& gcloud auth configure-docker us-central1-docker.pkg.dev \
 	&& npm install -g \
+		corepack \
 		google-artifactregistry-auth \
 	&& rm -f /usr/lib64/google-cloud-sdk/RELEASE_NOTES \
 	&& dnf clean all
